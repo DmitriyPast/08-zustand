@@ -17,6 +17,7 @@ export default function SearchBox({ onChange }: SearchBoxProps) {
 
   return (
     <input
+      name="search"
       onChange={handleChange}
       className={css.input}
       type="text"

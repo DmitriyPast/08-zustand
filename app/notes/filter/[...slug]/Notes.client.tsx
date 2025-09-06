@@ -1,24 +1,19 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
-import css from "./page.module.css";
+import toast from "react-hot-toast";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { fetchNotes } from "@/lib/api";
+// import Modal from "@/components/Modal/Modal";
+import { useDebounce } from "use-debounce";
+// import NoteForm from "@/components/NoteForm/NoteForm";
+import Link from "next/link";
+import SearchBox from "@/components/SearchBox/SearchBox";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
-import Modal from "@/components/Modal/Modal";
-import { useDebounce } from "use-debounce";
-import NoteForm from "@/components/NoteForm/NoteForm";
-import SearchBox from "@/components/SearchBox/SearchBox";
-import type { FetchNotesResponse } from "@/lib/api";
+import { fetchNotes } from "@/lib/api";
+import css from "./page.module.css";
 
 interface NotesClientProps {
-    // initSearch: string,
-    // initPage: number,
-    // tag: string
-
-    // searchParams: (string | number)[],
     searchParams: {
         name: string,
         search: string,
@@ -26,14 +21,12 @@ interface NotesClientProps {
         perPage?: number,
         tag?: string
     },
-    // queryFn: () => {}
 }
 
 export default function NotesClient({ searchParams: { name, search, initPage, perPage, tag } }: NotesClientProps) {
     const [page, setPage] = useState<number>(initPage);
     const [query, setQuery] = useState<string>(search);
-    const [modalOpen, setModalOpen] = useState<boolean>(false);
-
+    // const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [queryDebounced] = useDebounce(query, 1000);
 
     const { data, isLoading, isError, isSuccess } = useQuery({
@@ -50,11 +43,9 @@ export default function NotesClient({ searchParams: { name, search, initPage, pe
     }, [data, isSuccess]);
 
     useEffect(() => setPage(1), [queryDebounced])
-
-    const handleClose = () => setModalOpen(false);
+    // const handleClose = () => setModalOpen(false);
 
     return (
-
         <div className={css.app}>
             <header className={css.toolbar}>
                 {/* Компонент SearchBox */}
@@ -68,21 +59,15 @@ export default function NotesClient({ searchParams: { name, search, initPage, pe
                     />
                 )}
                 {/* Кнопка створення нотатки */}
-                {
-                    <button onClick={() => setModalOpen(true)} className={css.button}>
-                        Create note +
-                    </button>
-                }
+                {/* { */}
+                <Link href={"/notes/action/create"} className={css.button}>
+                    Create note +
+                </Link>
             </header>
             {query && isLoading && !data && <>Loading notes...</>}
             {query && isError && <>Error occured</>}
             {data && data.notes.length > 0 && <NoteList noteList={data.notes} />}
-            {modalOpen && (
-                <Modal onClose={handleClose}>
-                    <NoteForm onClose={handleClose} />
-                </Modal>
-            )}
-            <Toaster />
+            {/* <Toaster /> */}
         </div>
     );
 }

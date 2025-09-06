@@ -9,8 +9,6 @@ type Props = {
 
 export default async function NotePreview({ params }: Props) {
     const { id } = await params;
-    // const note = await getSingleNote(id);
-
 
     const qc: QueryClient = new QueryClient()
     await qc.prefetchQuery({
@@ -23,4 +21,3 @@ export default async function NotePreview({ params }: Props) {
         </HydrationBoundary>
     )
 }
-
