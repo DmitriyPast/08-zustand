@@ -36,18 +36,6 @@ export default function NoteForm() {
     });
   };
 
-  const handleSubmit = (formData: FormData) => {
-    console.log(formData);
-    const values: NoteFormValues = {
-      title: formData.get('title') as string,
-      content: formData.get('content') as string,
-      tag: formData.get('tag') as NoteTag
-    }
-    // onSubmit(values);
-    // actions.resetForm();
-    request.mutate(values);
-  };
-
   const Schema = Yup.object().shape({
     title: Yup.string()
       .min(3, "Title must be at least 3 Chara-cters.")
@@ -59,6 +47,28 @@ export default function NoteForm() {
       .required("Tag is required."),
   });
 
+  const handleSubmit = async (formData: FormData) => {
+    // console.log(formData);
+    const values: NoteFormValues = {
+      title: formData.get('title') as string,
+      content: formData.get('content') as string,
+      tag: formData.get('tag') as NoteTag
+    }
+    // onSubmit(values);
+    // actions.resetForm();
+    try {
+      await Schema.validate(values, { abortEarly: false });
+      await request.mutateAsync(values);
+    } catch (validationError) {
+      if (validationError instanceof Yup.ValidationError) {
+        toast.error(validationError.message)
+      } else {
+        toast.error('Failed to create note. Please try again.');
+      }
+    }
+    // request.mutate(values);
+  };
+
   const client = useQueryClient();
 
   const request = useMutation({
@@ -67,7 +77,7 @@ export default function NoteForm() {
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["notes"] });
       // onClose();
-      console.log('successfully created note');
+      // console.log('successfully created note');
       // alert('successfully created note')
       toast.success('successfully created note')
       clearDraft();
